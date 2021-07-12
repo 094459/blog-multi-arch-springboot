@@ -13,7 +13,7 @@ env_EU=core.Environment(region="eu-west-1", account="704533066374")
 #env_EU=core.Environment(region="eu-central-1", account="704533066374")
 
 props = {
-    'mydcexternalip': '79.67.110.164',
+    'mydcexternalip': '80.42.49.11',
     'mydcinternalcidr' : '192.168.1.0/24',
     'awsvpccidr':'10.0.0.0/16',
     'ecsclustername':'mydc-ecs',
