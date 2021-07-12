@@ -33,15 +33,15 @@ phases:
        - sed -i "s|{ecr_image}|${REPOSITORY_URI}:${IMAGE_TAG}|g" tf.json
 #       - sed -i "s|{ecr_image}|${REPOSITORY_URI}:${IMAGE_TAG}|g" tf-any.json
        - sed -i "s|{region}|$AWS_DEFAULT_REGION|g" tf.json
-       - sed -i "s|{log_group}|$ECS_SERVICE|g" tf.json
+       - sed -i "s|{log_group}|$ECS_SN|g" tf.json
        - aws ecs register-task-definition --cli-input-json file://tf.json
        - TASK_DEFINITON="springboot-cicd"
        - TASK_REVISION=`aws ecs describe-task-definition --task-definition $TASK_DEFINITON | egrep "revision" | tr "/" " " | awk '{print $2}' | sed 's/,$//'`
        - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition $TASK_DEFINITON:${TASK_REVISION} 
-#       - LOCAL_ECS_CLUSTER="ecsanywhere"
-#       - LOCAL_ECS_SERVICE="ecsanywheresvc"
+#       - LOCAL_ECS_CLUSTER="mydc-ecs-extcluster"
+#       - LOCAL_ECS_SERVICE="mydc-ecs-svc"
 #       - aws ecs register-task-definition --cli-input-json file://tf-any.json
-#       - LOCAL_TASK_DEFINITON="springboot-cicd"
+#       - LOCAL_TASK_DEFINITON="ecsanywhere"
 #       - LOCAL_TASK_REVISION=`aws ecs describe-task-definition --task-definition $LOCAL_TASK_DEFINITON | egrep "revision" | tr "/" " " | awk '{print $2}' | sed 's/,$//'`
 #       - aws ecs update-service --cluster $LOCAL_ECS_CLUSTER --service $LOCAL_ECS_SERVICE --task-definition $LOCAL_TASK_DEFINITON:${LOCAL_TASK_REVISION} 
        - aws ssm put-parameter --name "/demo/ecsanywhere/latestimage" --value ${IMAGE_TAG} --type "String" --overwrite
