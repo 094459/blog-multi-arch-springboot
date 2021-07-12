@@ -1,0 +1,40 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - ARM_TAG=${IMAGE_TAG}-arm64
+      - AMD_TAG=${IMAGE_TAG}-amd64
+      - echo $REPOSITORY_URI
+      - echo $IMAGE_TAG
+      - echo $AMD_TAG
+      - echo $ARM_TAG
+      - export DOCKER_CLI_EXPERIMENTAL=enabled
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker manifest...
+      - docker manifest create $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:$ARM_TAG $REPOSITORY_URI:$AMD_TAG
+      - docker manifest annotate --arch arm64 $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:$ARM_TAG
+      - docker manifest annotate --arch amd64 $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:$AMD_TAG
+      - docker manifest inspect $REPOSITORY_URI:$IMAGE_TAG
+      - docker manifest push $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+#      - ecs-cli --version
+#      - aws ecs describe-clusters --cluster $ECS_CLUSTER
+#      - aws ecs describe-services --cluster $ECS_CLUSTER --services $ECS_SERVICE
+       - cd springbootdemo
+       - sed -i "s|{ecr_image}|${REPOSITORY_URI}:${IMAGE_TAG}|g" tf.json
+       - sed -i "s|{region}|$AWS_DEFAULT_REGION|g" tf.json
+       - sed -i "s|{log_group}|$ECS_SERVICE|g" tf.json
+       - aws ecs register-task-definition --cli-input-json file://tf.json
+       - TASK_DEFINITON="springboot-cicd"
+       - TASK_REVISION=`aws ecs describe-task-definition --task-definition $TASK_DEFINITON | egrep "revision" | tr "/" " " | awk '{print $2}' | sed 's/,$//'`
+       - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition $TASK_DEFINITON:${TASK_REVISION} 
+       - aws ssm put-parameter --name "/demo/ecsanywhere/latestimage" --value ${IMAGE_TAG} --type "String" --overwrite

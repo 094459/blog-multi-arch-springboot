@@ -1,0 +1,32 @@
+{
+    "executionRoleArn": "arn:aws:iam::704533066374:role/ecsTaskExecutionRole",
+    "containerDefinitions": [
+        {
+            "name": "SpringBootCICD",
+            "image": "{ecr_image}",
+            "essential": true,
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "secretOptions": [],
+                "options": {
+                  "awslogs-group": "ecs-anywhere-cicd-mydcecsSpringBootTaskDefSpringBootCICDLogGroupA90A8E15-KPDLYf40a4pN",
+                  "awslogs-region": "{region}",
+                  "awslogs-stream-prefix": "mydc-ecs-logs"
+                },
+            "portMappings": [
+                {
+                    "hostPort": 8080,
+                    "protocol": "tcp",
+                    "containerPort": 8080
+                }
+            ]
+        }
+    ],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "networkMode": "awsvpc",
+    "cpu": "256",
+    "memory": "512",
+    "family": "springboot-cicd"
+}

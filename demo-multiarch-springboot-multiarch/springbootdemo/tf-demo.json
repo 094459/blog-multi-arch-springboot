@@ -1,0 +1,24 @@
+{
+    "executionRoleArn": "arn:aws:iam::704533066374:role/ecsTaskExecutionRole",
+    "containerDefinitions": [
+        {
+            "name": "SpringBootCICD",
+            "image": "704533066374.dkr.ecr.eu-west-1.amazonaws.com/demo-multiarch-springboot-ecsanywhere:4b31a3c",
+            "essential": true,
+            "portMappings": [
+                {
+                    "hostPort": 8080,
+                    "protocol": "tcp",
+                    "containerPort": 8080
+                }
+            ]
+        }
+    ],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "networkMode": "awsvpc",
+    "cpu": "256",
+    "memory": "512",
+    "family": "springboot-cicd"
+}
