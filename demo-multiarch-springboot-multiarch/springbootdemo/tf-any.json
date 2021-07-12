@@ -1,0 +1,19 @@
+{
+	"requiresCompatibilities": [
+		"EXTERNAL"
+	],
+	"containerDefinitions": [{
+		"name": "springboot-remote",
+		"image": "{ecr_image}",
+		"memory": 256,
+		"cpu": 256,
+		"essential": true,
+		"portMappings": [{
+			"containerPort": 8080,
+			"hostPort": 8080,
+			"protocol": "tcp"
+		}]
+	}],
+	"networkMode": "bridge",
+	"family": "ecsanywhere"
+}

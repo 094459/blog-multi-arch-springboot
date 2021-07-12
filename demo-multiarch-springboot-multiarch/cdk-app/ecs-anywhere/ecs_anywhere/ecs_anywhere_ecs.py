@@ -60,6 +60,16 @@ class EcsAnywhereECSStack(core.Stack):
                 "portMappings": [{"containerPort": 80,"hostPort": 8080, "protocol": "tcp"}]
                 }]
         )
+        service = ecs.CfnService(
+            self,
+            f"{props['ecsclustername']}-svc",
+            service_name=f"{props['ecsclustername']}-svc",
+            cluster=f"{props['ecsclustername']}-extcluster",
+            launch_type="EXTERNAL",
+            desired_count=1,
+            task_definition="ecsanywhere"
+            #task.to_string()
+        )
 
         core.CfnOutput(
             self,

@@ -9,8 +9,8 @@ from ecs_anywhere.ecs_anywhere_vpc import EcsAnywhereVPCStack
 from ecs_anywhere.ecs_anywhere_ecs import EcsAnywhereECSStack
 from ecs_anywhere.ecs_anywhere_pipe import EcsAnywherePipeStack
 
-env_EU=core.Environment(region="eu-west-1", account="704533066374")
-#env_EU=core.Environment(region="eu-central-1", account="704533066374")
+#env_EU=core.Environment(region="eu-west-1", account="704533066374")
+env_EU=core.Environment(region="eu-central-1", account="704533066374")
 
 props = {
     'mydcexternalip': '80.42.49.11',
