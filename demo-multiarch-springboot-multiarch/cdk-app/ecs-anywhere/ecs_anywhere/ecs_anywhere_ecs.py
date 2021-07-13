@@ -33,6 +33,15 @@ class EcsAnywhereECSStack(core.Stack):
         # Create the ECS Cluster and Task Definition for the ECS Anywhere Cluster
         # we use this as ECS Anywhere only is supported by L1 constructs in CDK
                 
+        #Use the existing ECS cluster that is running in AWS
+        # cluster = ecs.CfnCluster(
+        #    self,
+        #    f"{props['ecsclustername']}-extcluster",
+        #    cluster_name=f"{props['ecsclustername']}-extcluster"
+        #)
+        
+        #specify the cluster name if you want a different ECS cluster
+        
         cluster = ecs.CfnCluster(
             self,
             f"{props['ecsclustername']}-extcluster",
@@ -60,6 +69,7 @@ class EcsAnywhereECSStack(core.Stack):
                 "portMappings": [{"containerPort": 80,"hostPort": 8080, "protocol": "tcp"}]
                 }]
         )
+
         service = ecs.CfnService(
             self,
             f"{props['ecsclustername']}-svc",

@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_ec2 as ec2,
     aws_ecr as ecr,
     aws_ssm as ssm,
+    aws_logs as log,
     aws_codecommit as codecommit,
     aws_autoscaling as autoscaling,
     aws_elasticloadbalancingv2 as elbv2,
@@ -44,9 +45,19 @@ class EcsAnywhereCICDStack(core.Stack):
             "ECSClusterName",
             parameter_name="/demo/ecsanywhere/clustername",
             string_value=ecscluster.cluster_name,
-            tier=ssm.ParameterTier.ADVANCED
+            tier=ssm.ParameterTier.STANDARD
         )
 
+        ecscluster_name = ssm.StringParameter(
+            self,
+            "ECSClusterShortName",
+            parameter_name="/demo/ecsanywhere/shortcn",
+            string_value=f"{props['ecsclustername']}",
+            tier=ssm.ParameterTier.STANDARD
+        )
+
+        ## If you want to just set up a single ASG with a single
+        ## instance type, you can use this instead
 
         #ecscluster_asg = autoscaling.AutoScalingGroup(
         #    self,
@@ -58,6 +69,9 @@ class EcsAnywhereCICDStack(core.Stack):
         #)
 
         #ecscluster.add_auto_scaling_group(ecscluster_asg)
+
+        # Create two ASGs which have two different instance types
+        # This will allow you to deploy and test against x86 and arm
 
         ecscluster.add_capacity(
             "x86AutoScalingGroup",
@@ -81,23 +95,31 @@ class EcsAnywhereCICDStack(core.Stack):
         # select ECR repo and starting container image
         # we set these in the properties file but we also can get this from the parameter store
 
-        demo_app_image = ssm.StringParameter.from_string_parameter_attributes(
-            self,
-            "ContainerTagLatest",
-            parameter_name="/demo/ecsanywhere/latestimage"
-        ).string_value
+        #demo_app_image = ssm.StringParameter.from_string_parameter_attributes(
+        #    self,
+        #    "ContainerTagLatest",
+        #    parameter_name="/demo/ecsanywhere/latestimage"
+        #).string_value
        
         springboot_repo = ecr.Repository.from_repository_name(self, "springbootecrrepo", repository_name=f"{props['ecr-repo']}")
         #springboot_image = ecs.ContainerImage.from_ecr_repository(springboot_repo, demo_app_image)
         springboot_image = ecs.ContainerImage.from_ecr_repository(springboot_repo, f"{props['image-tag']}")
-             
+
+        # Create log group
+
+        log_group = log.LogGroup(
+            self,
+            "LogGroup",
+            log_group_name=f"{props['ecsclustername']}-loggrp"
+        )
+
         container = ec2_task_definition.add_container(
             "SpringBootCICD",
             image=springboot_image,
             memory_limit_mib=1024,
             cpu=100,
             # Configure CloudWatch logging
-            logging=ecs.LogDrivers.aws_logs(stream_prefix=f"{props['ecsclustername']}-logs"),
+            logging=ecs.LogDrivers.aws_logs(stream_prefix=f"{props['ecsclustername']}-logs",log_group=log_group),
             essential=True
             )
         
@@ -139,7 +161,7 @@ class EcsAnywhereCICDStack(core.Stack):
             "ECSServiceName",
             parameter_name="/demo/ecsanywhere/servicename",
             string_value=service.service_name,
-            tier=ssm.ParameterTier.ADVANCED
+            tier=ssm.ParameterTier.STANDARD
         )
 
         lb = elbv2.ApplicationLoadBalancer(
@@ -160,9 +182,9 @@ class EcsAnywhereCICDStack(core.Stack):
             targets=[service]
         )
 
-        #core.CfnOutput(
-        #    self,
-        #    id="CodeCommitEndpoint",
-        #    value=code.repository_clone_url_http,
-        #    description="Name of Code Commit clone URL to use"
-        #)
+        core.CfnOutput(
+            self,
+            id="LoadBalancerEndpoint",
+            value=lb.load_balancer_dns_name,
+            description="DNS name of application load balancer of your ECS Cluster"
+        )

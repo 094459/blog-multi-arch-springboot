@@ -27,7 +27,7 @@ class EcsAnywherePipeStack(core.Stack):
         ecr_repo = ecr.Repository.from_repository_name(self, "springbootecrrepo", repository_name=f"{props['ecr-repo']}")
 
         # select code repo
-        
+
         code = codecommit.Repository.from_repository_name(self, "CodeRep", repository_name=f"{props['code-repo']}")
         codecommit.CfnRepository.CodeProperty.branch_name="main"
 
@@ -138,5 +138,8 @@ class EcsAnywherePipeStack(core.Stack):
                             type=codebuild.BuildEnvironmentVariableType.PARAMETER_STORE),
                 "ECS_SERVICE": codebuild.BuildEnvironmentVariable(
                             value="/demo/ecsanywhere/servicename", 
+                            type=codebuild.BuildEnvironmentVariableType.PARAMETER_STORE),
+                "ECS_SN": codebuild.BuildEnvironmentVariable(
+                            value="/demo/ecsanywhere/shortcn", 
                             type=codebuild.BuildEnvironmentVariableType.PARAMETER_STORE),                            
                 }
