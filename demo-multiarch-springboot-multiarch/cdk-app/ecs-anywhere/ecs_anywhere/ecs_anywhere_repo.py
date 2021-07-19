@@ -21,7 +21,9 @@ class EcsAnywhereLBStack(core.Stack):
     def __init__(self, scope: core.Construct, id: str, vpc, props, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        # Create Application Load Balancer and Target Group      
+        # Create Application Load Balancer and Target Group 
+        # which configures the target IP of the remote Pi
+        # and sets up the necessary security groups     
 
         local_lb_security_group = ec2.SecurityGroup(
             self,

@@ -102,7 +102,6 @@ class EcsAnywhereCICDStack(core.Stack):
         #).string_value
        
         springboot_repo = ecr.Repository.from_repository_name(self, "springbootecrrepo", repository_name=f"{props['ecr-repo']}")
-        #springboot_image = ecs.ContainerImage.from_ecr_repository(springboot_repo, demo_app_image)
         springboot_image = ecs.ContainerImage.from_ecr_repository(springboot_repo, f"{props['image-tag']}")
 
         # Create log group

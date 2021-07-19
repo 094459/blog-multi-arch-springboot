@@ -121,18 +121,11 @@ class EcsAnywherePipeStack(core.Stack):
             "ecs:DescribeTaskDefinition",
             "ecs:RegisterTaskDefinition"], resources=["*"]))
             
-    # We create the Docker Hub credentials and store them in Parameter Store
-    # for dockerhub username/password
+    # We need to grab some Parameter Store variables
 
     def get_build_env_vars(self, ecr_repo):
         return {
                 "REPOSITORY_URI": codebuild.BuildEnvironmentVariable(value=ecr_repo.repository_uri),
-                "DOCKERHUB_USERNAME": codebuild.BuildEnvironmentVariable(
-                            value="/springboot-multiarch/dockerhub/username", 
-                            type=codebuild.BuildEnvironmentVariableType.PARAMETER_STORE),
-                "DOCKERHUB_PASSWORD": codebuild.BuildEnvironmentVariable(
-                            value="/springboot-multiarch/dockerhub/password ", 
-                            type=codebuild.BuildEnvironmentVariableType.PARAMETER_STORE),
                 "ECS_CLUSTER": codebuild.BuildEnvironmentVariable(
                             value="/demo/ecsanywhere/clustername", 
                             type=codebuild.BuildEnvironmentVariableType.PARAMETER_STORE),
