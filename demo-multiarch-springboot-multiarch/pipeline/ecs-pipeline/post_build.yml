@@ -10,10 +10,6 @@ phases:
       - IMAGE_TAG=${COMMIT_HASH:=latest}
       - ARM_TAG=${IMAGE_TAG}-arm64
       - AMD_TAG=${IMAGE_TAG}-amd64
-      - echo $REPOSITORY_URI
-      - echo $IMAGE_TAG
-      - echo $AMD_TAG
-      - echo $ARM_TAG
       - export DOCKER_CLI_EXPERIMENTAL=enabled
   build:
     commands:
